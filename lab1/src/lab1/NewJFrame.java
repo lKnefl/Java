@@ -184,27 +184,30 @@ public class NewJFrame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+        // Создаем собственное исключение
+    class CustomException extends Exception {
+    public CustomException(String message) {
+        super(message);
+    }}
     private void CalculateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CalculateActionPerformed
-       double upperly;
+        double upperly;
         double downly;
         double step;
         double result;
         int selectRow = jTable1.getSelectedRow();
         DefaultTableModel model1 = (DefaultTableModel) jTable1.getModel ();
         if (selectRow !=-1){
-            downly = Double.parseDouble(model1.getValueAt(selectRow, 0).toString());
-            upperly = Double.parseDouble(model1.getValueAt(selectRow, 1).toString());
-            step = Double.parseDouble(model1.getValueAt(selectRow, 2).toString());
-            
-            result= Calc(downly, upperly, step);
-            
-            model1.setValueAt(result, selectRow, 3);
-            listR.set(selectRow,new RecIntegral (downly, upperly, step, result));
+                downly = Double.parseDouble(model1.getValueAt(selectRow, 0).toString());
+                upperly = Double.parseDouble(model1.getValueAt(selectRow, 1).toString());
+                step = Double.parseDouble(model1.getValueAt(selectRow, 2).toString());
+                result= Calc(downly, upperly, step);
+                model1.setValueAt(result, selectRow, 3);
+                listR.set(selectRow,new RecIntegral (downly, upperly, step, result));
         }
-                else{
+        else{
             JOptionPane.showMessageDialog(null, "выберете строку");
         }
+        
         // TODO add your handling code here:
     }//GEN-LAST:event_CalculateActionPerformed
 public double Calc(double downly, double upperly, double step){
@@ -218,19 +221,43 @@ public double Calc(double downly, double upperly, double step){
     return sumS;
 }
     private void AddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddButtonActionPerformed
-        double upperly;
-        double downly;
-        double step;// TODO add your handling code here:
+        double upperly=0;
+        double downly=0;
+        double step=0;// TODO add your handling code here:
         DefaultTableModel model1 = (DefaultTableModel) jTable1.getModel ();
-        upperly = Double.parseDouble(Upperly.getText());
-        downly = Double.parseDouble(Downly.getText());
-        step = Double.parseDouble(Step.getText());
-        model1.addRow(new Object []{downly, upperly, step});
-        Downly.setText ("");
-        Upperly.setText ("");
-        Step.setText ("");
-        listR.add (new RecIntegral (downly, upperly, step, 0));
+                try {
+                upperly = Double.parseDouble(Upperly.getText());
+                downly = Double.parseDouble(Downly.getText());
+                step = Double.parseDouble(Step.getText());
+                
 
+                if (downly < 0.000001 || downly > 1000000) {
+                    throw new CustomException("Значение должно быть в диапазоне от 0,000001 до 1000000");
+                }
+                if (upperly < 0.000001 || upperly > 1000000) {
+                    throw new CustomException("Значение должно быть в диапазоне от 0,000001 до 1000000");
+                }
+                if (step < 0.000001 || step > 1000000) {
+                    throw new CustomException("Значение должно быть в диапазоне от 0,000001 до 1000000");
+                }
+                if (upperly <= downly ) {
+                    throw new CustomException("Нижняя граница не может быть больше или равна верхней");
+                }
+                
+            } 
+            catch (CustomException e) {
+                Downly.setText ("");
+                Upperly.setText ("");
+                Step.setText ("");
+                JOptionPane.showMessageDialog(null, "Ошибка: " + e.getMessage());
+                return;
+                
+            }
+            Downly.setText ("");
+            Upperly.setText ("");
+            Step.setText ("");
+            model1.addRow(new Object []{downly, upperly, step});
+            listR.add (new RecIntegral (downly, upperly, step, 0));
     }//GEN-LAST:event_AddButtonActionPerformed
 
     private void DeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteActionPerformed
@@ -260,8 +287,7 @@ public double Calc(double downly, double upperly, double step){
        }
                   
     }//GEN-LAST:event_Fill_buttonActionPerformed
-
-
+ 
     public static void main(String args[]) {
       
         java.awt.EventQueue.invokeLater(new Runnable() {
